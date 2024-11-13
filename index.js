@@ -2452,7 +2452,7 @@ init();
 
 //----------------------------------------------------------------------------
 
-function triangle(a, b, c) {
+function triangle(a, c, b) {
     console.log("a", a, "b", b, "c", c);
     colors.push(vertexColors[1]);
     points.push(vertices[a]);
@@ -2481,7 +2481,7 @@ function init() {
     if (!gl) { alert("WebGL 2.0 isn't available"); }
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-
+    console.log("canvas.width", canvas.width, "canvas.height", canvas.height);
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
 
@@ -2541,7 +2541,7 @@ function init() {
 function base() {
     var s = scale(0.5 * BASE_WIDTH, 0.5 * BASE_HEIGHT, 0.5 * BASE_WIDTH);
     //console.log("s", s);
-    var instanceMatrix = mult(translate(0.0, 0.5 * BASE_HEIGHT, 0.0), s);
+    var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
     //var instanceMatrix = mult(s,  translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ));
 
     //console.log("instanceMatrix", instanceMatrix);
@@ -2557,10 +2557,10 @@ function base() {
 
 
 function upperArm() {
-    var s = scale(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
+    var s = scale(0.5 * UPPER_ARM_WIDTH, 0.5 * UPPER_ARM_HEIGHT, 0.5 * UPPER_ARM_WIDTH);
     //console.log("s", s);
 
-    var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0), s);
+    var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
     //var instanceMatrix = mult(s, translate(  0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ));
 
     //console.log("instanceMatrix", instanceMatrix);
@@ -2580,8 +2580,8 @@ function upperArm() {
 
 
 function lowerArm() {
-    var s = scale(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0), s);
+    var s = scale(0.5 * LOWER_ARM_WIDTH, 0.5 * LOWER_ARM_HEIGHT, 0.5 * LOWER_ARM_WIDTH);
+    var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
 
 
     var t = mult(modelViewMatrix, instanceMatrix);
@@ -2600,18 +2600,18 @@ function render() {
     modelViewMatrix = rotate(theta[Base], vec3(0, 1, 0));
     base();
 
-    // modelViewMatrix = mult(modelViewMatrix, translate(0.0, BASE_HEIGHT, 0.0));
-    // modelViewMatrix = mult(modelViewMatrix, rotate(theta[LowerArm], vec3(0, 0, 1)));
-    // lowerArm();
-    // printm(translate(0.0, BASE_HEIGHT, 0.0));
-    // printm(modelViewMatrix);
+    modelViewMatrix = mult(modelViewMatrix, translate(0.0, BASE_HEIGHT, 0.0));
+    modelViewMatrix = mult(modelViewMatrix, rotate(theta[LowerArm], vec3(0, 0, 1)));
+    lowerArm();
+    printm(translate(0.0, BASE_HEIGHT, 0.0));
+    printm(modelViewMatrix);
 
-    // modelViewMatrix = mult(modelViewMatrix, translate(0.0, LOWER_ARM_HEIGHT, 0.0));
-    // modelViewMatrix = mult(modelViewMatrix, rotate(theta[UpperArm], vec3(0, 0, 1)));
+    modelViewMatrix = mult(modelViewMatrix, translate(0.0, LOWER_ARM_HEIGHT, 0.0));
+    modelViewMatrix = mult(modelViewMatrix, rotate(theta[UpperArm], vec3(0, 0, 1)));
 
-    // upperArm();
+    upperArm();
 
-    //printm(modelViewMatrix);
+    printm(modelViewMatrix);
 
     requestAnimationFrame(render);
 }
