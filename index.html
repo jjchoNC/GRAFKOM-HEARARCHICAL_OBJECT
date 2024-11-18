@@ -219,7 +219,7 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 
         const meshProgramInfo = webglUtils.createProgramInfo(gl, [vs, fs]);
 
-        const response = await fetch('resources/obj/Kipas_Triangulate.obj', { mode: 'cors' });
+        const response = await fetch('resources/obj/kipas_triangulate_full.obj', { mode: 'cors' });
         const text = await response.text();
         const obj = parseOBJ(text);
 
@@ -293,7 +293,7 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
                 const { bufferInfo, material } = parts[index];
 
                 let u_world;
-                if (index == 2) {
+                if (index != 0 && index != 4 && index != 1) {
 
                     const pivotPoint = [0.053396, 0.115802, 0.20899]; // Define the rotation pivot point
                     const toPivot = m4.translation(-pivotPoint[0], -pivotPoint[1], -pivotPoint[2]);
