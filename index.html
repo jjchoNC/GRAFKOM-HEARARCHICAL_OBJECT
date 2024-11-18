@@ -18,7 +18,7 @@
         </label>
         <label for="sliderY">
             Rotation Y:
-            <input id="sliderY" type="range" min="-30" max="180" value="0" step="1">
+            <input id="sliderY" type="range" min="-30" max="180" value="90" step="1">
         </label>
         <label for="sliderZ">
             Rotation Z:
@@ -293,14 +293,16 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
                 const { bufferInfo, material } = parts[index];
 
                 let u_world;
-                if (index != 0) {
+                if (index == 2) {
+
+                    const pivotPoint = [0.053396, 0.115802, 0.20899]; // Define the rotation pivot point
+                    const toPivot = m4.translation(-pivotPoint[0], -pivotPoint[1], -pivotPoint[2]);
+
                     var rotationMatrixY = m4.yRotation(currentRotationY);
-                    rotationMatrixY = m4.xRotate(rotationMatrixY, degToRad(parseFloat(sliderX.value)));
-                    u_world = m4.multiply(
-                        translationMatrix,
-                        m4.multiply(rotationMatrixY, scalingMatrix)
-                    );
-                    u_world = m4.yRotate(u_world, degToRad(parseFloat(sliderY.value)));
+                    // rotationMatrixY = m4.xRotate(rotationMatrixY, degToRad(parseFloat(sliderX.value)));
+                    rotationMatrixY = m4.yRotate(rotationMatrixY, degToRad(parseFloat(sliderY.value)));
+                    
+                    u_world = m4.multiply(m4.multiply(translationMatrix, scalingMatrix), m4.multiply(rotationMatrixY, toPivot));
                 } else {
                     u_world = m4.multiply(translationMatrix, scalingMatrix);
                     u_world = m4.yRotate(u_world, degToRad(parseFloat(sliderY.value)));
