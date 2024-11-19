@@ -14,15 +14,15 @@
     <div>
         <label for="sliderX">
             Rotation X:
-            <input id="sliderX" type="range" min="-30" max="30" value="0" step="1">
+            <input id="sliderX" type="range" min="-30" max="360" value="0" step="1">
         </label>
         <label for="sliderY">
             Rotation Y:
-            <input id="sliderY" type="range" min="-30" max="180" value="90" step="1">
+            <input id="sliderY" type="range" min="-30" max="360" value="60" step="1">
         </label>
         <label for="sliderZ">
             Rotation Z:
-            <input id="sliderZ" type="range" min="-30" max="30" value="0" step="1">
+            <input id="sliderZ" type="range" min="-30" max="360" value="0" step="1">
         </label>
     </div>
 </body>
@@ -219,7 +219,7 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 
         const meshProgramInfo = webglUtils.createProgramInfo(gl, [vs, fs]);
 
-        const response = await fetch('resources/obj/kipas_triangulate_full.obj', { mode: 'cors' });
+        const response = await fetch('resources/obj/kipas_triangulate_full_fix.obj', { mode: 'cors' });
         const text = await response.text();
         const obj = parseOBJ(text);
 
@@ -242,9 +242,6 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
         function degToRad(deg) {
             return deg * Math.PI / 180;
         }
-
-        let currentRotationY = 0;
-        let rotationDirection = 1;
 
         function clamp(value, min, max) {
             return Math.max(min, Math.min(max, value));
@@ -275,37 +272,51 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
             gl.useProgram(meshProgramInfo.program);
             webglUtils.setUniforms(meshProgramInfo, sharedUniforms);
 
-            const rotationSpeed = 0.005;
-            currentRotationY += rotationDirection * rotationSpeed;
-            currentRotationY = clamp(currentRotationY, degToRad(-30), degToRad(30));
-
-            if (currentRotationY >= degToRad(30) || currentRotationY <= degToRad(-30)) {
-                rotationDirection *= -1;
-            }
-
             const scaleFactor = 0.25;
-            const translateY = -0.75;
-            const translateX = 0.0;
+            const translateY = 0.25;
+            const translateX = -0.25;
             const scalingMatrix = m4.scaling(scaleFactor, scaleFactor, scaleFactor);
             const translationMatrix = m4.translation(translateX, translateY, 0);
+
+            const bladeSpinAngle = time * Math.PI;
+            const bladeSpinMatrix = m4.zRotation(bladeSpinAngle);
+
+            const motorSpinAngle = time * Math.PI;
+            const motorSpinMatrix = m4.yRotation(motorSpinAngle);
 
             for (let index = 0; index < parts.length; ++index) {
                 const { bufferInfo, material } = parts[index];
 
                 let u_world;
-                if (index != 0 && index != 4 && index != 1) {
-
-                    const pivotPoint = [0.053396, 0.115802, 0.20899]; // Define the rotation pivot point
-                    const toPivot = m4.translation(-pivotPoint[0], -pivotPoint[1], -pivotPoint[2]);
-
-                    var rotationMatrixY = m4.yRotation(currentRotationY);
-                    // rotationMatrixY = m4.xRotate(rotationMatrixY, degToRad(parseFloat(sliderX.value)));
-                    rotationMatrixY = m4.yRotate(rotationMatrixY, degToRad(parseFloat(sliderY.value)));
-                    
-                    u_world = m4.multiply(m4.multiply(translationMatrix, scalingMatrix), m4.multiply(rotationMatrixY, toPivot));
-                } else {
+                if (index === 3) {
                     u_world = m4.multiply(translationMatrix, scalingMatrix);
                     u_world = m4.yRotate(u_world, degToRad(parseFloat(sliderY.value)));
+                    u_world = m4.xRotate(u_world, degToRad(parseFloat(sliderX.value)));
+                    u_world = m4.multiply(u_world, bladeSpinMatrix);
+                }
+
+                else if (index == 2) {
+                    const pivot = [0, 0, 2.5];
+                    const motorSpinAngle = time * Math.PI;
+
+                    const toPivotMatrix = m4.translation(-pivot[0], -pivot[1], -pivot[2]);
+                    const fromPivotMatrix = m4.translation(pivot[0], pivot[1], pivot[2]);
+
+                    const motorSpinMatrix = m4.yRotation(motorSpinAngle);
+
+                    u_world = m4.multiply(translationMatrix, scalingMatrix);
+                    u_world = m4.yRotate(u_world, degToRad(parseFloat(sliderY.value)));
+                    u_world = m4.xRotate(u_world, degToRad(parseFloat(sliderX.value)));
+                    u_world = m4.multiply(u_world, fromPivotMatrix);
+                    u_world = m4.multiply(u_world, motorSpinMatrix);
+                    u_world = m4.multiply(u_world, toPivotMatrix);
+                }
+
+                else {
+                    u_world = m4.multiply(translationMatrix, scalingMatrix);
+                    u_world = m4.yRotate(u_world, degToRad(parseFloat(sliderY.value)));
+                    u_world = m4.xRotate(u_world, degToRad(parseFloat(sliderX.value)));
+                    u_world = m4.zRotate(u_world, degToRad(parseFloat(sliderZ.value)));
                 }
 
                 webglUtils.setBuffersAndAttributes(gl, meshProgramInfo, bufferInfo);
