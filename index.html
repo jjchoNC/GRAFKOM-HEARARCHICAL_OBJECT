@@ -1,4 +1,5 @@
 <!-- Licensed under a BSD license. See license.html for license -->
+
 <!DOCTYPE html>
 <html>
 
@@ -13,28 +14,32 @@
     <canvas id="canvas"></canvas>
     <div>
         <label for="sliderX">
-            Rotation X:
+            Base Rotation X:
             <input id="sliderX" type="range" min="-30" max="360" value="0" step="1">
         </label>
         <label for="sliderY">
-            Rotation Y:
+            Base Rotation Y:
             <input id="sliderY" type="range" min="-30" max="360" value="60" step="1">
         </label>
         <label for="sliderZ">
-            Rotation Z:
+            Base Rotation Z:
             <input id="sliderZ" type="range" min="-30" max="360" value="0" step="1">
         </label>
         <label for="sliderEngsel">
             Engsel:
             <input id="sliderEngsel" type="range" min="-25" max="15" value="0" step="1">
         </label>
+        <button id="toggleSpinMotor">Toggle Fan Motor Spin</button>
+        <button id="toggleSpinBlade">Toggle Fan Blade Spin</button>
     </div>
 </body>
+
 <!--
 for most samples webgl-utils only provides shader compiling/linking and
 canvas resizing because why clutter the examples with code that's the same in every sample.See https:and https:
 for webgl-utils, m3, m4, and webgl-lessons-ui.
 -->
+
 <script src="webgl-utils.js"></script>
 <script src="m4.js"></script>
 <script>
@@ -182,10 +187,32 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
         /** @type {HTMLCanvasElement} */
         const canvas = document.querySelector("#canvas");
         const gl = canvas.getContext("webgl");
+
+        const baseId = 0;
+        const engselId = 1;
+        const motorId = 2;
+        const bladeId = 3;
+
         var sliderY = document.getElementById("sliderY");
         var sliderX = document.getElementById("sliderX");
         var sliderZ = document.getElementById("sliderZ");
         var sliderEngsel = document.getElementById("sliderEngsel");
+        var spinningBlade = document.getElementById("toggleSpinBlade");
+        var spinningMotor = document.getElementById("toggleSpinMotor");
+
+        var isSpinningBlade = true;
+        var isSpinningMotor = true;
+        var tempAngleMotor = 0;
+        var bladeSpinSpeed = 15;
+
+        spinningBlade.addEventListener("click", () => {
+            isSpinningBlade = !isSpinningBlade;
+        });
+
+        spinningMotor.addEventListener("click", () => {
+            isSpinningMotor = !isSpinningMotor;
+        });
+
         if (!gl) {
             return;
         }
@@ -253,7 +280,7 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
         }
 
         function render(time) {
-            time *= 0.001; // Convert time to seconds
+            time *= 0.001;
 
             webglUtils.resizeCanvasToDisplaySize(gl.canvas);
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -283,7 +310,17 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
             const scalingMatrix = m4.scaling(scaleFactor, scaleFactor, scaleFactor);
             const translationMatrix = m4.translation(translateX, translateY, 0);
 
-            const bladeSpinAngle = time * 10;
+            if (isSpinningBlade) {
+                bladeSpinSpeed = 20;
+            }
+
+            else if (bladeSpinSpeed > 0) {
+                bladeSpinSpeed *= 0.9;
+                if (bladeSpinSpeed <= 0) {
+                    bladeSpinSpeed = 0;
+                }
+            }
+            const bladeSpinAngle = time * bladeSpinSpeed;
             const bladeSpinMatrix = m4.zRotation(bladeSpinAngle);
 
             const maxAngle = degToRad(30);
@@ -291,7 +328,15 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
             var motorSpinDirection = 1;
 
             var currentMotorSpinAngle = 0;
-            currentMotorSpinAngle = clamp(Math.sin(time) * Math.PI / 4, minAngle, maxAngle);
+
+            if (isSpinningMotor) {
+                currentMotorSpinAngle = clamp(Math.sin(time) * Math.PI / 4, minAngle, maxAngle);
+                tempAngleMotor = currentMotorSpinAngle;
+            }
+
+            else {
+                currentMotorSpinAngle = tempAngleMotor;
+            }
 
             if (currentMotorSpinAngle <= minAngle || currentMotorSpinAngle >= maxAngle) {
                 motorSpinDirection *= -1;
@@ -304,8 +349,8 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 
                 let u_world;
 
-                if (index == 1 || index == 2 || index == 3) {
-                    
+                if (index == engselId || index == motorId || index == bladeId) {
+
                     u_world = m4.multiply(translationMatrix, scalingMatrix);
                     u_world = m4.yRotate(u_world, degToRad(parseFloat(sliderY.value)));
                     u_world = m4.xRotate(u_world, degToRad(parseFloat(sliderX.value)));
@@ -321,7 +366,7 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
                     u_world = m4.multiply(u_world, engselSpinMatrix);
                     u_world = m4.multiply(u_world, toPivotMatrix);
 
-                    if (index == 2 || index == 3) {
+                    if (index == motorId || index == bladeId) {
                         const pivotMotor = [0, 0, 2.5];
 
                         toPivotMatrix = m4.translation(-pivotMotor[0], -pivotMotor[1], -pivotMotor[2]);
