@@ -190,9 +190,9 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 
         const baseId = 0;
         const engselId = 1;
-        const motorId = 2;
-        const bladeId = 3;
-
+        const bladeId = 2;
+        const motorId = 4;
+        
         var sliderY = document.getElementById("sliderY");
         var sliderX = document.getElementById("sliderX");
         var sliderZ = document.getElementById("sliderZ");
@@ -375,7 +375,7 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
                         u_world = m4.multiply(u_world, fromPivotMatrix);
                         u_world = m4.multiply(u_world, motorSpinMatrix);
                         u_world = m4.multiply(u_world, toPivotMatrix);
-                        if (index == 3) {
+                        if (index == bladeId) {
                             u_world = m4.multiply(u_world, bladeSpinMatrix);
                         }
                     }
