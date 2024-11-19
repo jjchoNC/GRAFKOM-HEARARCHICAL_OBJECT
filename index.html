@@ -24,9 +24,9 @@
             Rotation Z:
             <input id="sliderZ" type="range" min="-30" max="360" value="0" step="1">
         </label>
-        <label for="sliderZ">
-            Rotation Z:
-            <input id="sliderZ" type="range" min="-30" max="360" value="0" step="1">
+        <label for="sliderEngsel">
+            Engsel:
+            <input id="sliderEngsel" type="range" min="-25" max="15" value="0" step="1">
         </label>
     </div>
 </body>
@@ -185,6 +185,7 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
         var sliderY = document.getElementById("sliderY");
         var sliderX = document.getElementById("sliderX");
         var sliderZ = document.getElementById("sliderZ");
+        var sliderEngsel = document.getElementById("sliderEngsel");
         if (!gl) {
             return;
         }
@@ -303,21 +304,35 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 
                 let u_world;
 
-                if (index == 2 || index == 3) {
-                    const pivot = [0, 0, 2.5];
-
-                    const toPivotMatrix = m4.translation(-pivot[0], -pivot[1], -pivot[2]);
-                    const fromPivotMatrix = m4.translation(pivot[0], pivot[1], pivot[2]);
-
+                if (index == 1 || index == 2 || index == 3) {
+                    
                     u_world = m4.multiply(translationMatrix, scalingMatrix);
                     u_world = m4.yRotate(u_world, degToRad(parseFloat(sliderY.value)));
                     u_world = m4.xRotate(u_world, degToRad(parseFloat(sliderX.value)));
                     u_world = m4.zRotate(u_world, degToRad(parseFloat(sliderZ.value)));
+
+                    const engselSpinMatrix = m4.xRotation(degToRad(parseFloat(sliderEngsel.value)));
+                    const pivotEngsel = [0, -2, 3];
+
+                    var toPivotMatrix = m4.translation(-pivotEngsel[0], -pivotEngsel[1], -pivotEngsel[2]);
+                    var fromPivotMatrix = m4.translation(pivotEngsel[0], pivotEngsel[1], pivotEngsel[2]);
+
                     u_world = m4.multiply(u_world, fromPivotMatrix);
-                    u_world = m4.multiply(u_world, motorSpinMatrix); // Use alternating spinDirection
+                    u_world = m4.multiply(u_world, engselSpinMatrix);
                     u_world = m4.multiply(u_world, toPivotMatrix);
-                    if (index == 3) {
-                        u_world = m4.multiply(u_world, bladeSpinMatrix);
+
+                    if (index == 2 || index == 3) {
+                        const pivotMotor = [0, 0, 2.5];
+
+                        toPivotMatrix = m4.translation(-pivotMotor[0], -pivotMotor[1], -pivotMotor[2]);
+                        fromPivotMatrix = m4.translation(pivotMotor[0], pivotMotor[1], pivotMotor[2]);
+
+                        u_world = m4.multiply(u_world, fromPivotMatrix);
+                        u_world = m4.multiply(u_world, motorSpinMatrix);
+                        u_world = m4.multiply(u_world, toPivotMatrix);
+                        if (index == 3) {
+                            u_world = m4.multiply(u_world, bladeSpinMatrix);
+                        }
                     }
                 }
 
