@@ -1,57 +1,177 @@
-<!-- Licensed under a BSD license. See license.html for license -->
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>3D Hierarchical Object Fan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>WebGL - load obj</title>
-    <link type="text/css" href="index.css" rel="stylesheet" />
-</head>
+  <body class="bg-gray-900 text-white min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="w-full bg-gray-800 py-4 text-center shadow-lg">
+      <h1 class="text-2xl font-bold">3D Hierarchical Object Fan</h1>
+    </header>
 
-<body>
-    <canvas id="canvas"></canvas>
-    <div>
-        <label for="sliderX">
-            Base Rotation X:
-            <input id="sliderX" type="range" min="-30" max="360" value="0" step="1">
-        </label>
-        <label for="sliderY">
-            Base Rotation Y:
-            <input id="sliderY" type="range" min="-30" max="360" value="130" step="1">
-        </label>
-        <label for="sliderZ">
-            Base Rotation Z:
-            <input id="sliderZ" type="range" min="-30" max="360" value="0" step="1">
-        </label>    
-        <label for="sliderEngsel">
-            Engsel:
-            <input id="sliderEngsel" type="range" min="-25" max="15" value="0" step="1">
-        </label>
-        <button id="toggleSpinMotor">Toggle Fan Motor Spin</button>
-        <button id="toggleSpinBlade">Toggle Fan Blade Spin</button>
-        <div>
-            <label for="sliderLight">
-                Light Intensity:
-                <input id="sliderLight" type="range" min="0" max="2" value="1" step="0.1">
-            </label>
+    <!-- Kontainer Utama -->
+    <div class="flex flex-grow">
+      <!-- Sidebar Kiri -->
+      <div class="w-64 bg-gray-800 p-4 flex flex-col gap-6">
+        <h2 class="text-lg font-bold text-center">Base Rotations</h2>
+        <div class="flex flex-col gap-4">
+          <label for="sliderX" class="flex flex-col">
+            <span class="font-semibold mb-2"
+              >Rotation X:
+              <span id="valueX" class="text-blue-400">0</span></span
+            >
+            <input
+              id="sliderX"
+              type="range"
+              min="-30"
+              max="360"
+              value="0"
+              step="1"
+              class="accent-blue-500"
+            />
+          </label>
+          <label for="sliderY" class="flex flex-col">
+            <span class="font-semibold mb-2"
+              >Rotation Y:
+              <span id="valueY" class="text-green-400">130</span></span
+            >
+            <input
+              id="sliderY"
+              type="range"
+              min="-30"
+              max="360"
+              value="130"
+              step="1"
+              class="accent-green-500"
+            />
+          </label>
+          <label for="sliderZ" class="flex flex-col">
+            <span class="font-semibold mb-2"
+              >Rotation Z:
+              <span id="valueZ" class="text-yellow-400">0</span></span
+            >
+            <input
+              id="sliderZ"
+              type="range"
+              min="-30"
+              max="360"
+              value="0"
+              step="1"
+              class="accent-yellow-500"
+            />
+          </label>
+          <h2 class="text-lg font-bold text-center">Light Position</h2>
+          <label for="sliderLight" class="flex flex-col">
+            <span class="font-semibold mb-2"
+              >Light Intensity:
+              <span id="valueLight" class="text-yellow-400">1</span></span
+            >
+            <input
+              id="sliderLight"
+              type="range"
+              min="0"
+              max="2"
+              value="1"
+              step="0.1"
+              class="accent-yellow-500"
+            />
+          </label>
+          <label for="sliderLightX" class="flex flex-col">
+            <span class="font-semibold mb-2"
+              >Position X:
+              <span id="valueLightX" class="text-blue-400">0</span></span
+            >
+            <input
+              id="sliderLightX"
+              type="range"
+              min="-10"
+              max="10"
+              value="0"
+              step="0.1"
+              class="accent-blue-500"
+            />
+          </label>
+          <label for="sliderLightY" class="flex flex-col">
+            <span class="font-semibold mb-2"
+              >Position Y:
+              <span id="valueLightY" class="text-green-400">3</span></span
+            >
+            <input
+              id="sliderLightY"
+              type="range"
+              min="-10"
+              max="10"
+              value="3"
+              step="0.1"
+              class="accent-green-500"
+            />
+          </label>
         </div>
-        <div>
-            <label for="sliderLightX">
-                Light Position X:
-                <input id="sliderLightX" type="range" min="-10" max="10" value="0" step="0.1">
-            </label>
-            <label for="sliderLightY">
-                Light Position Y:
-                <input id="sliderLightY" type="range" min="-10" max="10" value="3" step="0.1">
-            </label>
+      </div>
+
+      <!-- Area Canvas -->
+      <div class="flex-grow flex items-center justify-center bg-gray-900">
+        <canvas
+          id="canvas"
+          class="w-[80%] h-[80%] bg-gray-800 rounded-lg shadow-lg"
+        ></canvas>
+      </div>
+
+      <!-- Sidebar Kanan -->
+      <div class="w-64 bg-gray-800 p-4 flex flex-col gap-6">
+        <h2 class="text-lg font-bold text-center">Controls</h2>
+        <div class="flex flex-col gap-4">
+          <label for="sliderEngsel" class="flex flex-col">
+            <span class="font-semibold mb-2"
+              >Engsel:
+              <span id="valueEngsel" class="text-red-400">0</span></span
+            >
+            <input
+              id="sliderEngsel"
+              type="range"
+              min="-25"
+              max="15"
+              value="0"
+              step="1"
+              class="accent-red-500"
+            />
+          </label>
+          <button
+            id="toggleSpinMotor"
+            class="px-4 py-2 bg-blue-600 rounded-lg shadow-md hover:bg-blue-500 transition"
+          >
+            Toggle Fan Motor Spin
+          </button>
+          <button
+            id="toggleSpinBlade"
+            class="px-4 py-2 bg-green-600 rounded-lg shadow-md hover:bg-green-500 transition"
+          >
+            Toggle Fan Blade Spin
+          </button>
         </div>
+      </div>
     </div>
-</body>
 
-<script src="webgl-utils.js"></script>
-<script src="m4.js"></script>
-<script src="./script.js"></script>
-
+    <script>
+      // Update slider values dynamically
+      const sliders = ["X", "Y", "Z", "Engsel", "Light", "LightX", "LightY"];
+      sliders.forEach((slider) => {
+        const sliderElement = document.getElementById(`slider${slider}`);
+        const valueElement = document.getElementById(`value${slider}`);
+        sliderElement.addEventListener("input", () => {
+          valueElement.textContent = sliderElement.value;
+        });
+      });
+    </script>
+    <script src="webgl-utils.js"></script>
+    <script src="m4.js"></script>
+    <script src="./script.js"></script>
+  </body>
 </html>
