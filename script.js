@@ -146,7 +146,12 @@ async function main() {
     const baseId = 0;
     const engselId = 1;
     const bladeId = 2;
+    const buttonId = 3;
     const motorId = 4;
+    const cageLockId = 5;
+    const logo1 = 6;
+    const topBladeId = 7;
+    const logo2 = 8;
 
     var sliderY = document.getElementById("sliderY");
     var sliderX = document.getElementById("sliderX");
@@ -206,8 +211,21 @@ async function main() {
         `;
 
 
-    const meshProgramInfo = webglUtils.createProgramInfo(gl, [vs, fs]);
 
+    const meshProgramInfo = webglUtils.createProgramInfo(gl, [vs, fs]);
+    const materials = new Map([
+        [baseId, [0.970, 0.960, 0.967, 1]],
+        [engselId, [0.970, 0.960, 0.967, 1]],
+        [motorId, [0.930, 0.930, 0.930, 1]],
+        [bladeId, [0.485, 0.950, 0.764, 1]],
+        [buttonId, [0.485, 0.950, 0.764, 1]],
+        [cageLockId, [0.485, 0.950, 0.764, 1]],
+        [logo1, [0.485, 0.950, 0.764, 1]],
+        [topBladeId, [0, 0, 0, 1]],
+        [logo2, [0.485, 0.950, 0.764, 1]],
+    ]);
+
+    var objIndex = 0;
     const response = await fetch('resources/obj/kipas_triangulate_full_fix.obj', { mode: 'cors' });
     const text = await response.text();
     const obj = parseOBJ(text);
@@ -217,7 +235,7 @@ async function main() {
         const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
         return {
             material: {
-                u_diffuse: [Math.random(), Math.random(), Math.random(), 1],
+                u_diffuse: materials.get(objIndex++),
             },
             bufferInfo,
         };
@@ -322,7 +340,7 @@ async function main() {
 
             let u_world;
 
-            if (index == engselId || index == motorId || index == bladeId) {
+            if (index != logo2 && index != buttonId) {
 
                 u_world = m4.multiply(translationMatrix, scalingMatrix);
                 u_world = m4.yRotate(u_world, degToRad(parseFloat(sliderY.value)));
@@ -339,7 +357,7 @@ async function main() {
                 u_world = m4.multiply(u_world, engselSpinMatrix);
                 u_world = m4.multiply(u_world, toPivotMatrix);
 
-                if (index == motorId || index == bladeId) {
+                if (index == motorId || index == bladeId || index == topBladeId || index == cageLockId || index == logo1) {
                     const pivotMotor = [0, 0, 2.5];
 
                     toPivotMatrix = m4.translation(-pivotMotor[0], -pivotMotor[1], -pivotMotor[2]);
@@ -348,7 +366,7 @@ async function main() {
                     u_world = m4.multiply(u_world, fromPivotMatrix);
                     u_world = m4.multiply(u_world, motorSpinMatrix);
                     u_world = m4.multiply(u_world, toPivotMatrix);
-                    if (index == bladeId) {
+                    if (index == bladeId || index == topBladeId) {
                         u_world = m4.multiply(u_world, bladeSpinMatrix);
                     }
                 }
