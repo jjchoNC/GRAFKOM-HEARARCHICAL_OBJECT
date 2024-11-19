@@ -347,15 +347,17 @@ async function main() {
                 u_world = m4.xRotate(u_world, degToRad(parseFloat(sliderX.value)));
                 u_world = m4.zRotate(u_world, degToRad(parseFloat(sliderZ.value)));
 
-                const engselSpinMatrix = m4.xRotation(degToRad(parseFloat(sliderEngsel.value)));
-                const pivotEngsel = [0, -2, 3];
-
-                var toPivotMatrix = m4.translation(-pivotEngsel[0], -pivotEngsel[1], -pivotEngsel[2]);
-                var fromPivotMatrix = m4.translation(pivotEngsel[0], pivotEngsel[1], pivotEngsel[2]);
-
-                u_world = m4.multiply(u_world, fromPivotMatrix);
-                u_world = m4.multiply(u_world, engselSpinMatrix);
-                u_world = m4.multiply(u_world, toPivotMatrix);
+                if (index == engselId || index == bladeId || index == topBladeId || index == cageLockId || index == logo1 || index == motorId) {
+                    const engselSpinMatrix = m4.xRotation(degToRad(parseFloat(sliderEngsel.value)));
+                    const pivotEngsel = [0, -2, 3];
+    
+                    var toPivotMatrix = m4.translation(-pivotEngsel[0], -pivotEngsel[1], -pivotEngsel[2]);
+                    var fromPivotMatrix = m4.translation(pivotEngsel[0], pivotEngsel[1], pivotEngsel[2]);
+    
+                    u_world = m4.multiply(u_world, fromPivotMatrix);
+                    u_world = m4.multiply(u_world, engselSpinMatrix);
+                    u_world = m4.multiply(u_world, toPivotMatrix);
+                }
 
                 if (index == motorId || index == bladeId || index == topBladeId || index == cageLockId || index == logo1) {
                     const pivotMotor = [0, 0, 2.5];
