@@ -67,6 +67,21 @@
               class="accent-yellow-500"
             />
           </label>
+          <label for="sliderZoom" class="flex flex-col">
+            <span class="font-semibold mb-2"
+              >Zoom:
+              <span id="valueZoom" class="text-yellow-400">0</span></span
+            >
+            <input
+              id="sliderZoom"
+              type="range"
+              min="0.1"
+              max="0.5"
+              value="0.25"
+              step="0.05"
+              class="accent-yellow-500"
+            />
+          </label>
           <h2 class="text-lg font-bold text-center">Light Position</h2>
           <label for="sliderLight" class="flex flex-col">
             <span class="font-semibold mb-2"
@@ -161,7 +176,7 @@
 
     <script>
       // Update slider values dynamically
-      const sliders = ["X", "Y", "Z", "Engsel", "Light", "LightX", "LightY"];
+      const sliders = ["X", "Y", "Z", "Engsel", "Light", "LightX", "LightY", "Zoom"];
       sliders.forEach((slider) => {
         const sliderElement = document.getElementById(`slider${slider}`);
         const valueElement = document.getElementById(`value${slider}`);

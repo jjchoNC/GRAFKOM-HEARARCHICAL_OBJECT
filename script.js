@@ -156,6 +156,7 @@ async function main() {
     var sliderY = document.getElementById("sliderY");
     var sliderX = document.getElementById("sliderX");
     var sliderZ = document.getElementById("sliderZ");
+    var sliderZoom = document.getElementById("sliderZoom");
     var sliderEngsel = document.getElementById("sliderEngsel");
     var spinningBlade = document.getElementById("toggleSpinBlade");
     var spinningMotor = document.getElementById("toggleSpinMotor");
@@ -295,7 +296,7 @@ async function main() {
         gl.useProgram(meshProgramInfo.program);
         webglUtils.setUniforms(meshProgramInfo, sharedUniforms);
 
-        const scaleFactor = 0.25;
+        const scaleFactor = sliderZoom.value;
         const translateY = 0.25;
         const translateX = -0.25;
         const scalingMatrix = m4.scaling(scaleFactor, scaleFactor, scaleFactor);
